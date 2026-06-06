@@ -27,7 +27,11 @@ set_var() {
   local key="$1"
   local value="$2"
   if grep -q "^${key}=" .env.deploy; then
-    sed -i.bak "s|^${key}=.*|${key}=${value}|" .env.deploy
+    if sed --version 2>/dev/null | grep -q GNU; then
+      sed -i "s|^${key}=.*|${key}=${value}|" .env.deploy
+    else
+      sed -i '' "s|^${key}=.*|${key}=${value}|" .env.deploy
+    fi
   else
     echo "${key}=${value}" >> .env.deploy
   fi
@@ -42,8 +46,6 @@ set_var API_PUBLIC_URL "https://${API_DOMAIN}"
 set_var BACKOFFICE_PUBLIC_URL "https://${BACKOFFICE_DOMAIN}"
 set_var PLAYER_PUBLIC_URL "https://${PLAYER_DOMAIN}"
 set_var CORS_ORIGINS "https://${BACKOFFICE_DOMAIN},https://${PLAYER_DOMAIN}"
-
-rm -f .env.deploy.bak
 
 echo "Configured .env.deploy for ${DOMAIN}"
 echo ""
