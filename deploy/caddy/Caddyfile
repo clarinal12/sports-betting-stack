@@ -1,0 +1,17 @@
+# Environment variables (set in .env.deploy / docker-compose):
+#   ACME_EMAIL, API_DOMAIN, BACKOFFICE_DOMAIN, PLAYER_DOMAIN
+{
+	email {$ACME_EMAIL}
+}
+
+{$API_DOMAIN} {
+	reverse_proxy api:5003
+}
+
+{$BACKOFFICE_DOMAIN} {
+	reverse_proxy backoffice:5001
+}
+
+{$PLAYER_DOMAIN} {
+	reverse_proxy player-shell:5002
+}

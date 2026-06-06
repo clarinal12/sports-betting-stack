@@ -1,0 +1,9 @@
+.env.deploy
+.DS_Store
+
+# App repos are cloned separately on the VPS (or live as siblings locally).
+sports-betting-service/
+sports-betting-backoffice/
+sportsbook-player-shell/
+nxtpay/
+nxtpay-backend/
