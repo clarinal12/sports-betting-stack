@@ -4,6 +4,50 @@ Docker Compose stack for the three projects plus Postgres and Redis.
 
 GitHub: [clarinal12/sports-betting-stack](https://github.com/clarinal12/sports-betting-stack) (orchestration only — clones the three app repos on the VPS).
 
+## Connect GitHub → EC2 (auto-deploy)
+
+Push to `main` on **sports-betting-stack** can redeploy staging via GitHub Actions.
+
+### 1. One-time server setup
+
+Ensure the VPS already has `~/casino` with all four repos cloned (bootstrap). Make scripts executable:
+
+```bash
+chmod +x ~/casino/deploy/redeploy.sh
+```
+
+### 2. GitHub repository secrets
+
+In **sports-betting-stack** → **Settings → Secrets and variables → Actions**, add:
+
+| Secret | Value |
+|--------|--------|
+| `STAGING_HOST` | Elastic IP, e.g. `54.206.146.30` |
+| `STAGING_USER` | `ubuntu` |
+| `STAGING_SSH_KEY` | Full contents of your `.pem` file |
+
+**Security:** In the EC2 security group, allow SSH (22) from GitHub Actions IPs, or use a dedicated deploy key / SSM instead of opening 22 to the world. Simplest for staging: temporarily allow your IP for manual deploys and use **workflow_dispatch** (Run workflow button) when your IP changes.
+
+### 3. How it works
+
+On push to `main` (or manual **Run workflow**):
+
+1. Action SSHs into the VPS
+2. Runs `./deploy/redeploy.sh` — pulls stack + three app repos, then `./deploy/up-https.sh`
+
+`.env.deploy` on the server is **not** overwritten (secrets stay on the VPS).
+
+### 4. Deploy when app repos change
+
+`redeploy.sh` always `git pull`s the three app repos on the server. To ship API/backoffice/player changes:
+
+1. Push to `main` on **sports-betting-service**, **sports-betting-backoffice**, or **sportsbook-player-shell**
+2. Run deploy — either push anything to **sports-betting-stack** `main`, or **Actions → Deploy staging → Run workflow**
+
+Optional later: add `repository_dispatch` from each app repo to trigger the same workflow.
+
+---
+
 ## Quick start: HTTPS staging on a VPS
 
 ### Prerequisites
