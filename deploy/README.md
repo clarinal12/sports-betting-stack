@@ -26,7 +26,25 @@ In **sports-betting-stack** → **Settings → Secrets and variables → Actions
 | `STAGING_USER` | `ubuntu` |
 | `STAGING_SSH_KEY` | Full contents of your `.pem` file |
 
-**Security:** In the EC2 security group, allow SSH (22) from GitHub Actions IPs, or use a dedicated deploy key / SSM instead of opening 22 to the world. Simplest for staging: temporarily allow your IP for manual deploys and use **workflow_dispatch** (Run workflow button) when your IP changes.
+**SSH key secret (`STAGING_SSH_KEY`):** must be the full `.pem` private key (not `.pub`), including `-----BEGIN ... KEY-----` lines. On Mac: `cat ~/.ssh/your-key.pem | pbcopy`. Verify locally: `ssh-keygen -y -f ~/.ssh/your-key.pem` (must print a public key, not `no key found`).
+
+**`dial tcp :22: i/o timeout`:** GitHub-hosted runners cannot reach your EC2 if port 22 only allows **My IP**. Hosted Actions use changing IPs.
+
+| Approach | SSH port 22 |
+|----------|-------------|
+| **Self-hosted runner on EC2** (recommended) | Only your IP for admin SSH |
+| Open SSH to `0.0.0.0/0` | Works with hosted Action (staging risk) |
+| Manual **Run workflow** from laptop | Use `ssh` deploy script yourself, skip Action |
+
+### Self-hosted runner (recommended — no public SSH for GitHub)
+
+On the EC2 instance:
+
+1. GitHub → **sports-betting-stack** → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → **Linux**
+2. Run the listed commands on the VPS (as `ubuntu`)
+3. Disable or ignore the hosted workflow; use **Deploy staging (self-hosted)** instead
+
+The runner executes `redeploy.sh` locally — no `STAGING_SSH_KEY` or inbound SSH from GitHub required.
 
 ### 3. How it works
 

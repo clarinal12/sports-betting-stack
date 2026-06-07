@@ -1,0 +1,18 @@
+# Deploy on the EC2 machine itself (no inbound SSH from GitHub).
+# Setup: register a self-hosted runner on the VPS (see deploy/README.md).
+name: Deploy staging (self-hosted)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Redeploy stack
+        run: |
+          set -euo pipefail
+          cd ~/casino
+          ./deploy/redeploy.sh
