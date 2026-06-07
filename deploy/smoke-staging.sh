@@ -10,12 +10,20 @@ if [ ! -f .env.deploy ]; then
   exit 1
 fi
 
-# shellcheck disable=SC1091
-source .env.deploy
+# shellcheck source=deploy/env-deploy.sh
+. "$(dirname "$0")/env-deploy.sh"
 
-API="${API_PUBLIC_URL:-https://${API_DOMAIN}}"
-BACKOFFICE="${BACKOFFICE_PUBLIC_URL:-https://${BACKOFFICE_DOMAIN}}"
-PLAYER="${PLAYER_PUBLIC_URL:-https://${PLAYER_DOMAIN}}"
+API_DOMAIN="$(env_deploy_get API_DOMAIN || true)"
+BACKOFFICE_DOMAIN="$(env_deploy_get BACKOFFICE_DOMAIN || true)"
+PLAYER_DOMAIN="$(env_deploy_get PLAYER_DOMAIN || true)"
+DOMAIN="$(env_deploy_get DOMAIN || true)"
+API_PUBLIC_URL="$(env_deploy_get API_PUBLIC_URL || true)"
+BACKOFFICE_PUBLIC_URL="$(env_deploy_get BACKOFFICE_PUBLIC_URL || true)"
+PLAYER_PUBLIC_URL="$(env_deploy_get PLAYER_PUBLIC_URL || true)"
+
+API="${API_PUBLIC_URL:-https://$API_DOMAIN}"
+BACKOFFICE="${BACKOFFICE_PUBLIC_URL:-https://$BACKOFFICE_DOMAIN}"
+PLAYER="${PLAYER_PUBLIC_URL:-https://$PLAYER_DOMAIN}"
 
 fail=0
 check() {
