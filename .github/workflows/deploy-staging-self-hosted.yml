@@ -10,9 +10,17 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    timeout-minutes: 90
+    env:
+      COMPOSE_PARALLEL_LIMIT: "1"
+      NODE_OPTIONS: "--max-old-space-size=768"
     steps:
+      - name: Prune unused Docker data
+        run: docker system prune -f || true
+
       - name: Redeploy stack
         run: |
           set -euo pipefail
           cd ~/casino
+          chmod +x deploy/build-images.sh
           ./deploy/redeploy.sh

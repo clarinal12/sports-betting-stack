@@ -256,6 +256,38 @@ Stop local `npm run start:dev` / `pnpm dev` first if ports 5001–5003 are in us
 
 ---
 
+## Troubleshooting deploy / self-hosted runner
+
+### Runner lost communication with GitHub
+
+Usually the VPS ran **out of memory** while `docker compose up --build` compiled **api + backoffice + player-shell in parallel** (three Node/Next.js builds at once).
+
+**Fix (included in stack `main`):** images build **one at a time** via `deploy/build-images.sh`, with `NODE_OPTIONS=--max-old-space-size=768`.
+
+On the VPS after pulling stack:
+
+```bash
+cd ~/casino
+git pull
+chmod +x deploy/build-images.sh deploy/redeploy.sh
+./deploy/redeploy.sh
+```
+
+If it still fails on a **2 GB** instance, add swap once:
+
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+Rebuild only (no git pull): `SKIP_BUILD=false ./deploy/up-https.sh`  
+Start without rebuild: `SKIP_BUILD=true ./deploy/up-https.sh`
+
+---
+
 ## Operations
 
 ```bash

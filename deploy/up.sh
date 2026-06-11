@@ -9,7 +9,11 @@ if [ ! -f .env.deploy ]; then
   echo "Created .env.deploy from .env.deploy.example"
 fi
 
-docker compose -f docker-compose.dev.yml --env-file .env.deploy up --build -d "$@"
+if [ "${SKIP_BUILD:-false}" != "true" ]; then
+  ./deploy/build-images.sh
+fi
+
+docker compose -f docker-compose.dev.yml --env-file .env.deploy up -d "$@"
 
 echo ""
 echo "Dev stack starting. URLs:"

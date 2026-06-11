@@ -3,6 +3,9 @@
 # Run on the VPS: ./deploy/redeploy.sh
 set -euo pipefail
 
+export COMPOSE_PARALLEL_LIMIT=1
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=768}"
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 

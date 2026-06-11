@@ -64,7 +64,7 @@ if grep -q 'dev-staff-jwt-secret-change-me-please' .env.deploy; then
   echo ""
 fi
 
-chmod +x deploy/up.sh deploy/up-https.sh deploy/generate-secrets.sh deploy/smoke-staging.sh 2>/dev/null || true
+chmod +x deploy/up.sh deploy/up-https.sh deploy/build-images.sh deploy/generate-secrets.sh deploy/smoke-staging.sh deploy/redeploy.sh 2>/dev/null || true
 
 echo ""
 echo "DNS: point these A records at this server's public IP:"

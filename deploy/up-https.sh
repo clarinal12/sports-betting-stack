@@ -40,7 +40,21 @@ echo "  ${BACKOFFICE_DOMAIN}"
 echo "  ${PLAYER_DOMAIN}"
 echo ""
 
-docker compose --profile https -f docker-compose.dev.yml --env-file .env.deploy up --build -d "$@"
+echo ""
+
+compose_up() {
+  if grep -q '^DOMAIN=' .env.deploy 2>/dev/null; then
+    docker compose --profile https -f docker-compose.dev.yml --env-file .env.deploy up -d "$@"
+  else
+    docker compose -f docker-compose.dev.yml --env-file .env.deploy up -d "$@"
+  fi
+}
+
+if [ "${SKIP_BUILD:-false}" != "true" ]; then
+  ./deploy/build-images.sh
+fi
+
+compose_up "$@"
 
 echo ""
 echo "Stack starting. Public URLs (after Caddy obtains certificates):"
